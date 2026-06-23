@@ -1,23 +1,25 @@
-import token from "../config/token.js";
+import generateToken from "../config/token.js";
 import User from "../Models/user.model.js";
 import bcrypt from "bcryptjs";
 
 export const signUp = async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
-    if (!name && !username && !email && !password) {
+
+    if (!name || !username || !email || !password) {
       return res.status(400).json({
-        message:
-          "All details are required such as name, username, email and password",
+        message: "All fields (name, username, email, password) are required.",
       });
     }
+
     const isUsernameAlreadyExist = await User.findOne({ username });
     if (isUsernameAlreadyExist) {
-      return res.status(400).json({ message: "Username already exist" });
+      return res.status(400).json({ message: "Username already exists." });
     }
+
     const isEmailAlreadyExist = await User.findOne({ email });
     if (isEmailAlreadyExist) {
-      return res.status(400).json({ message: "Email already exist" });
+      return res.status(400).json({ message: "Email already exists." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,58 +31,67 @@ export const signUp = async (req, res) => {
       password: hashedPassword,
     });
 
-    const token = token(user._id);
-    res.cookie("token", token, {
+    const jwtToken = generateToken(user._id);
+
+    res.cookie("token", jwtToken, {
       httpOnly: true,
-      maxAge: 10 * 365 * 24 * 60 * 60 * 1000,
-      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+      secure:false,
       sameSite: "Strict",
     });
+
     return res.status(201).json(user);
   } catch (error) {
-    return res.status(500).json({ message: "Error in SignUp Process." });
+    console.error("SignUp Error:", error);
+    return res.status(500).json({ message: "Internal Server Error during SignUp." });
   }
 };
 
 export const signIn = async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username && !password) {
+
+    if (!username || !password) {
       return res.status(400).json({
-        message:
-          "All details are required such as UserName and Password to SignIn",
+        message: "Username and password are required.",
       });
     }
+    if(password.length<6){
+      return res.status(400).json({message:"Password Must be Atleast 6 characters long ."})
+    }
+
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ message: "User Not Found" });
+      return res.status(400).json({ message: "Invalid credentials." });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: `Password Doesn't match` });
+      return res.status(400).json({ message: "Invalid credentials." });
     }
 
-    const token = token(user._id);
-    res.cookie("token", token, {
+    const jwtToken = generateToken(user._id);
+
+    res.cookie("token", jwtToken, {
       httpOnly: true,
-      httpOnly: true,
-      maxAge: 10 * 365 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       secure: false,
       sameSite: "Strict",
     });
 
-    return res.status(201).json(user);
+
+    return res.status(200).json(user);
   } catch (error) {
-    return res.status(500).json({ message: "Error in SignIn Process." });
+    console.error("SignIn Error:", error);
+    return res.status(500).json({ message: "Internal Server Error during SignIn." });
   }
 };
 
-export const signOut = async(req,res)=>{
+export const signOut = async (req, res) => {
   try {
-    res.clearCookie('token');
-    return res.status(200).json({ message: "sign out successfully" });
+    res.clearCookie("token");
+    return res.status(200).json({ message: "Signed out successfully." });
   } catch (error) {
-    return res.status(500).json({ message: "Error in SignOut Process." });
+    return res.status(500).json({ message: "Error during SignOut process." });
   }
-}
+};
