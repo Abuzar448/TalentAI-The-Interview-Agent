@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   },
   username:{
     type:String,
-    required:false,
+    required:true,
     unique:true,
     sparse: true
   },
@@ -23,7 +23,12 @@ const UserSchema = new mongoose.Schema({
   credits:{
     type:Number,
     default:200,
-  }
+  },
+  authMethod:{
+    type: String,
+    enum:['manual','google'],
+    default: "manual",
+  },
 
 },{timestamps:true});
 

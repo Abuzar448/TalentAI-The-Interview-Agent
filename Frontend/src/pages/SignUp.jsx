@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { RiRobot3Fill } from "react-icons/ri";
 import { IoSparkles } from "react-icons/io5";
-import { motion } from "framer-motion"; // Note: Changed 'motion/react' to standard 'framer-motion'
+import { motion } from "framer-motion"; 
 import { FcGoogle } from "react-icons/fc";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../utils/firebase.js";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,15 @@ const SignUp = () => {
     email: "",
     password: "",
   });
+
+  const handleGoogleAuth = async()=>{
+    try {
+      const response = await signInWithPopup(auth,provider);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -138,7 +149,7 @@ const SignUp = () => {
             transition={{ duration: 0.2 }}
             type="button"
             className="w-[80%] max-w-sm h-12 flex items-center justify-center text-black rounded-xl shadow-lg bg-[white] py-3 gap-3 cursor-pointer text-sm font-medium"
-          >
+          onClick={handleGoogleAuth}>
             <FcGoogle size={20} />
             Continue with Google
           </motion.button>

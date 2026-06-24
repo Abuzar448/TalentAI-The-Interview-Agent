@@ -8,8 +8,8 @@ const App = () => {
   return (
       <Routes>
         <Route path="/" element={<Home/>} />
-        <Route path="/signUp" element={<SignUp/>} />
-        <Route path="/signIn" element={<SignIn/>} />
+        <Route path="/signup" element={<SignUp/>} />
+        <Route path="/signin" element={<SignIn/>} />
       </Routes>
   );
 };
