@@ -1,36 +1,65 @@
 import React, { useState } from "react";
 import { RiRobot3Fill } from "react-icons/ri";
 import { IoSparkles } from "react-icons/io5";
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase.js";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    username: "",
-    email: "",
-    password: "",
-  });
+  const [name, setName] = useState("");
+  const [username, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleGoogleAuth = async()=>{
+  const handleGoogleAuth = async () => {
     try {
-      const response = await signInWithPopup(auth,provider);
-      console.log(response);
+      const response = await signInWithPopup(auth, provider);
+      const result = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/google-auth`,
+        {
+          name: response.user.displayName,
+          email: response.user.email,
+        },
+        {withCredentials:true}
+      );
+
+      console.log(result.data);
     } catch (error) {
       console.log(error);
     }
-  }
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
-    // Yahan aapka normal signup controller fetch/axios hit karega
+    try {
+      const result = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/signUp`,
+        {
+          name,
+          username,
+          email,
+          password,
+        },
+        {withCredentials:true}
+      );
+      setName("");
+      setUserName("");
+      setEmail("");
+      setPassword("");
+      console.log(result.data);
+    } catch (error) {
+      if(error.response){
+        console.error("Backend Error Message:", error.response.data.message);
+      }else{
+        console.error("Network Error:", error.message);
+      }
+      
+      console.log(error);
+    }
   };
 
   return (
@@ -43,56 +72,66 @@ const SignUp = () => {
       >
         {/* LEFT SIDE: Manual Input Fields Form */}
         <div className="p-8 sm:p-12 flex flex-col justify-center order-1">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Account</h2>
-          
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Create Account
+          </h2>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">Full Name</label>
+              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="name"
                 required
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter Your Name"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">Username</label>
+              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">
+                Username
+              </label>
               <input
                 type="text"
                 name="username"
                 required
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="johndoe123"
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter UserName"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">Email Address</label>
+              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">
+                Email Address
+              </label>
               <input
                 type="email"
                 name="email"
                 required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter Email"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">Password</label>
+              <label className="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
                 required
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all text-sm"
               />
@@ -107,9 +146,12 @@ const SignUp = () => {
               Sign Up
             </motion.button>
           </form>
-          
+
           <p className="text-xs text-center text-gray-500 mt-4">
-            Already have an account? <a href="/signin" className="text-black font-semibold underline">Sign In</a>
+            Already have an account?{" "}
+            <a className="text-black font-semibold underline cursor-pointer" onClick={()=>navigate('/signin')}>
+              Sign In
+            </a>
           </p>
         </div>
 
@@ -120,7 +162,9 @@ const SignUp = () => {
             <div className="bg-black text-white p-2 rounded-lg">
               <RiRobot3Fill size={20} />
             </div>
-            <h2 className="text-[18px] text-gray-900">TalentAI: Interview Agent</h2>
+            <h2 className="text-[18px] text-gray-900">
+              TalentAI: Interview Agent
+            </h2>
           </div>
 
           {/* Continue with Span */}
@@ -133,10 +177,10 @@ const SignUp = () => {
           </h1>
 
           <p className="text-gray-500 text-center text-sm leading-relaxed max-w-sm mb-8">
-            Sign up to start AI-Powered Mock Interviews, track your progress, and unlock detailed performance insights.
+            Sign up to start AI-Powered Mock Interviews, track your progress,
+            and unlock detailed performance insights.
           </p>
 
-          {/* Divider line for mobile representation */}
           <div className="w-full flex items-center justify-center gap-2 mb-6 md:hidden">
             <div className="h-[1px] bg-gray-200 flex-1"></div>
             <span className="text-xs text-gray-400 uppercase">Or</span>
@@ -149,7 +193,8 @@ const SignUp = () => {
             transition={{ duration: 0.2 }}
             type="button"
             className="w-[80%] max-w-sm h-12 flex items-center justify-center text-black rounded-xl shadow-lg bg-[white] py-3 gap-3 cursor-pointer text-sm font-medium"
-          onClick={handleGoogleAuth}>
+            onClick={handleGoogleAuth}
+          >
             <FcGoogle size={20} />
             Continue with Google
           </motion.button>
