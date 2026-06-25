@@ -7,11 +7,14 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase.js";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice.js";
 
 const SignIn = () => {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleGoogleAuth = async () => {
     try {
@@ -24,6 +27,7 @@ const SignIn = () => {
         },
         {withCredentials:true}
       );
+      dispatch(setUserData(result.data));
 
       console.log("Google SignIn Success",result.data);
     } catch (error) {
@@ -46,6 +50,7 @@ const SignIn = () => {
         },
         {withCredentials:true}
       );
+      dispatch(setUserData(result.data));
       setUserName("");
       setPassword("");
       console.log(result.data.message);

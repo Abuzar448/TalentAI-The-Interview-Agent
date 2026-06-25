@@ -7,6 +7,8 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../utils/firebase.js";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice.js";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -14,6 +16,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleGoogleAuth = async () => {
     try {
@@ -26,6 +29,7 @@ const SignUp = () => {
         },
         {withCredentials:true}
       );
+      dispatch(setUserData(result.data));
 
       console.log(result.data);
     } catch (error) {
@@ -46,6 +50,7 @@ const SignUp = () => {
         },
         {withCredentials:true}
       );
+      dispatch(setUserData(result.data));
       setName("");
       setUserName("");
       setEmail("");
