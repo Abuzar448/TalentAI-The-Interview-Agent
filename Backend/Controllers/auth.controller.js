@@ -40,7 +40,7 @@ export const signUp = async (req, res) => {
     res.cookie("token", jwtToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "Strict",
     });
 
@@ -87,7 +87,7 @@ export const signIn = async (req, res) => {
     res.cookie("token", jwtToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "Strict",
     });
 
@@ -132,7 +132,7 @@ export const googleAuthHandler = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "Strict",
     });
 

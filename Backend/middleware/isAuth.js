@@ -5,11 +5,11 @@ export const isAuth = async (req, res, next) => {
     if (!token) {
       return res.status(400).json({ message: "UnAuthorized !" });
     }
-    const userId = await jwt.verify(token, process.env.JWT_SECRET);
+    const userId = jwt.verify(token, process.env.JWT_SECRET);
     if (!userId) {
       return res.status(400).json({ message: "Invalid token." });
     }
-    req.user = userId._id;
+    req.user = userId.id;
     next();
   } catch (error) {
     return res.status(500).json({ message: "Error while checking is user loged in or not ?", error });
