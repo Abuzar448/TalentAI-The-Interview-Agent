@@ -6,7 +6,7 @@ import { HiOutlineLogout } from "react-icons/hi";
 import { RiRobot3Fill } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { setUserData } from "../redux/userSlice";
+import { setUserData } from "../redux/userSlice.js";
 
 const Navbar = () => {
   const { userData } = useSelector((state) => state.user);
@@ -17,11 +17,9 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Outside click handle karne ke liye refs
   const creditRef = useRef(null);
   const userRef = useRef(null);
 
-  // Close popups on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (creditRef.current && !creditRef.current.contains(event.target)) {
@@ -40,17 +38,13 @@ const Navbar = () => {
     try {
       setIsLoggingOut(true);
       
-      // 1. Backend API Hit to clear cookie
       await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signOut`, {
         withCredentials: true,
       });
-
-      // 2. Clear State First (Taaki UI triggers correct route rule)
       dispatch(setUserData(null));
       setCreditPopUp(false);
       setUserPopUp(false);
 
-      // 3. Navigate Last
       navigate("/signin", { replace: true });
     } catch (error) {
       console.error("Logout failed:", error);
@@ -59,7 +53,6 @@ const Navbar = () => {
     }
   };
 
-  // Safe Check if userData is still loading or null
   if (!userData) return null;
 
   return (
