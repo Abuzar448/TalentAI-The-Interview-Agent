@@ -5,6 +5,7 @@ import authRouter from './Routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import userRouter from './Routes/user.routes.js';
+import interviewRouter from './Routes/interview.routes.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
 app.use('/api/user',userRouter);
+app.use('/api/interview',interviewRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome to backend server.');
