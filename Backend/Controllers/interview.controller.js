@@ -41,7 +41,10 @@ export const analyzeResume = async (req, res) => {
       },
     ];
     const aiResponse = await askAI({messages});
-    const parsed = JSON.parse(aiResponse);
+    const cleanAIResponse = aiResponse.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleanAIResponse);
+
+    
     fs.unlinkSync(req.file.path);
 
     res.json({
