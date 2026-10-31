@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import axios from 'axios';
+import axios from "axios";
 import {
   FaUserTie,
   FaBriefcase,
@@ -10,6 +10,9 @@ import {
 } from "react-icons/fa";
 import { useState } from "react";
 import { useRef } from "react";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../redux/userSlice";
 
 const Step1Setup = ({ onStart }) => {
   const [role, setRole] = useState("");
@@ -26,6 +29,10 @@ const Step1Setup = ({ onStart }) => {
 
   const resumeInput = useRef(null);
 
+  const {userData} = useSelector(state=>state.user);
+  const dispatch = useDispatch();
+
+
   const steps = [
     {
       icon: <FaUserTie className="text-xl" />,
@@ -41,31 +48,64 @@ const Step1Setup = ({ onStart }) => {
     },
   ];
 
-  const handleResumeAnalyzing = async()=>{
-    if(!resumeFile || analyzing) return;
+  const handleResumeAnalyzing = async () => {
+    if (!resumeFile || analyzing) return;
     setAnalyzing(true);
 
     const formData = new FormData();
-    formData.append('resume',resumeFile);
+    formData.append("resume", resumeFile);
 
     try {
-      const result = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/interview/resume`,formData,{withCredentials:true});
+      const result = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/interview/resume`,
+        formData,
+        { withCredentials: true },
+      );
 
       console.log(result.data);
-      setRole(result.data.role || '');
-      setExperience(result.data.experience || '');
+      setRole(result.data.role || "");
+      setExperience(result.data.experience || "");
       setProjects(result.data.projects || []);
       setSkills(result.data.skills || []);
-      setResumeText(result.data.resumeText || '');
+      setResumeText(result.data.resumeText || "");
       setAnalysisDone(true);
 
       setAnalyzing(false);
-
     } catch (error) {
       console.log(error);
       setAnalyzing(false);
     }
+  };
+
+ const [loading, setLoading] = useState(false);
+const [error, setError] = useState("");
+
+const handleStart = async () => {
+  if (loading) return;
+  setLoading(true);
+  setError("");
+
+  try {
+    const result = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/interview/generate-quesions`,
+      { role, experience, mode, resumeText, projects, skills },
+      { withCredentials: true },
+    );
+
+    console.log(result.data);
+
+    if (userData) {
+      dispatch(setUserData({ ...userData, credits: result.data.creditsLeft }));
+    }
+
+    onStart(result.data);
+  } catch (err) {
+    console.log(err.response?.data || err.message);
+    setError(err.response?.data?.message || "Something went wrong. Please try again.");
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
     <motion.div
@@ -75,8 +115,6 @@ const Step1Setup = ({ onStart }) => {
       className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200 px-4 py-8"
     >
       <div className="w-full max-w-5xl bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] grid md:grid-cols-12 overflow-hidden border border-slate-100">
-        
-        {/* Left Informational Section */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -84,15 +122,16 @@ const Step1Setup = ({ onStart }) => {
           className="md:col-span-5 relative bg-gradient-to-br from-green-50 via-green-100/60 to-emerald-50 p-8 md:p-12 flex flex-col justify-center overflow-hidden"
         >
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-200/20 rounded-full blur-3xl pointer-events-none" />
-          
+
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4 tracking-tight leading-tight">
-            Start Your {" "}
+            Start Your{" "}
             <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-black block mt-1">
               AI Interview
             </span>
           </h2>
           <p className="text-gray-600 mb-10 text-sm leading-relaxed font-medium">
-            Practice real-world interview scenarios powered by AI. Improve communication, technical skills, and confidence.
+            Practice real-world interview scenarios powered by AI. Improve
+            communication, technical skills, and confidence.
           </p>
           <div className="space-y-4">
             {steps.map((item, idx) => (
@@ -107,13 +146,14 @@ const Step1Setup = ({ onStart }) => {
                 <div className="p-2.5 rounded-lg bg-green-50 text-green-600 transition-colors group-hover:bg-green-600 group-hover:text-white">
                   {item.icon}
                 </div>
-                <span className="text-gray-700 font-semibold tracking-wide text-sm">{item.text}</span>
+                <span className="text-gray-700 font-semibold tracking-wide text-sm">
+                  {item.text}
+                </span>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* Right Form Setup Section */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -151,7 +191,9 @@ const Step1Setup = ({ onStart }) => {
               onChange={(e) => setMode(e.target.value)}
               className="w-full px-4 py-3.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all font-semibold text-gray-600 cursor-pointer"
             >
-              <option value="" disabled hidden>Select Interview Type</option>
+              <option value="" disabled hidden>
+                Select Interview Type
+              </option>
               <option value="Technical">Technical Interview</option>
               <option value="HR">HR Interview</option>
             </select>
@@ -178,7 +220,9 @@ const Step1Setup = ({ onStart }) => {
                 </p>
                 {resumeFile && (
                   <motion.button
-                    onClick={(e)=>{e.stopPropagation(),handleResumeAnalyzing()}}
+                    onClick={(e) => {
+                      (e.stopPropagation(), handleResumeAnalyzing());
+                    }}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.02 }}
@@ -192,30 +236,42 @@ const Step1Setup = ({ onStart }) => {
               </motion.div>
             )}
 
-            {/* Analysis Matrix Yield View */}
             {analysisDone && (
-              <motion.div 
-                initial={{opacity:0, y:15}} 
-                animate={{opacity:1, y:0}} 
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
                 className="bg-slate-50/80 border border-slate-100 rounded-2xl p-5 space-y-4 max-h-[220px] overflow-y-auto"
               >
-                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Resume Profile Artifacts</h3>
-                
+                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider">
+                  Resume Profile Artifacts
+                </h3>
+
                 {projects.length > 0 && (
                   <div className="text-xs">
-                    <p className="font-bold text-gray-700 mb-1">Extracted Projects:</p>
+                    <p className="font-bold text-gray-700 mb-1">
+                      Extracted Projects:
+                    </p>
                     <ul className="list-disc list-inside text-gray-600 space-y-1 pl-1">
-                      {projects.map((p,idx)=>(<li key={idx} className="truncate">{p}</li>))}
+                      {projects.map((p, idx) => (
+                        <li key={idx} className="truncate">
+                          {p}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
 
                 {skills.length > 0 && (
                   <div className="text-xs">
-                    <p className="font-bold text-gray-700 mb-1.5">Identified Skills:</p>
+                    <p className="font-bold text-gray-700 mb-1.5">
+                      Identified Skills:
+                    </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {skills.map((s,idx)=>(
-                        <span key={idx} className="bg-green-50 text-green-700 border border-green-100/60 px-2.5 py-1 rounded-md font-medium">
+                      {skills.map((s, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-green-50 text-green-700 border border-green-100/60 px-2.5 py-1 rounded-md font-medium"
+                        >
                           {s}
                         </span>
                       ))}
@@ -226,6 +282,7 @@ const Step1Setup = ({ onStart }) => {
             )}
 
             <motion.button
+            onClick={handleStart}
               disabled={!role || !experience}
               whileHover={{ scale: !role || !experience ? 1 : 1.015 }}
               whileTap={{ scale: !role || !experience ? 1 : 0.985 }}

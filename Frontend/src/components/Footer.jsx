@@ -11,7 +11,7 @@ const Footer = () => {
             <BsRobot size={18} />
           </div>
           <h2 className="font-semibold text-gray-900 tracking-tight">
-            talentAI: Interview Agent
+            Intelli-Hire AI : An Interview Agent
           </h2>
         </div>
 

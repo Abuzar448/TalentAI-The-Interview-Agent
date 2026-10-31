@@ -75,7 +75,6 @@ const SignUp = () => {
         transition={{ duration: 0.8 }}
         className="w-full max-w-4xl bg-white shadow-2xl rounded-3xl border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-2"
       >
-        {/* LEFT SIDE: Manual Input Fields Form */}
         <div className="p-8 sm:p-12 flex flex-col justify-center order-1">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Create Account
@@ -160,19 +159,16 @@ const SignUp = () => {
           </p>
         </div>
 
-        {/* RIGHT SIDE: Branding info & Google Social Auth */}
         <div className="bg-gray-50 p-8 sm:p-12 flex flex-col justify-center items-center border-t md:border-t-0 md:border-l border-gray-100 order-2">
-          {/* Logo and Name */}
           <div className="flex items-center justify-center gap-3 mb-6 font-semibold">
             <div className="bg-black text-white p-2 rounded-lg">
               <RiRobot3Fill size={20} />
             </div>
             <h2 className="text-[18px] text-gray-900">
-              TalentAI: Interview Agent
+              Intelli-Hire AI : Interview Agent
             </h2>
           </div>
 
-          {/* Continue with Span */}
           <h1 className="text-2xl lg:text-3xl font-semibold text-center leading-snug mb-4 text-gray-900">
             Continue with{" "}
             <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full inline-flex items-center gap-2 text-base lg:text-lg whitespace-nowrap mt-2 md:mt-0">

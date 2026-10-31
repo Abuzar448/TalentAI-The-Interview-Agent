@@ -4,15 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BsCoin } from "react-icons/bs";
 import { HiOutlineLogout } from "react-icons/hi";
 import { RiRobot3Fill } from "react-icons/ri";
+import { FaRegUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setUserData } from "../redux/userSlice.js";
+import AuthModal from "./AuthModal.jsx";
 
 const Navbar = () => {
   const { userData } = useSelector((state) => state.user);
   const [creditPopUp, setCreditPopUp] = useState(false);
   const [userPopUp, setUserPopUp] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const [showAuth, setShowAuth] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -45,7 +49,7 @@ const Navbar = () => {
       setCreditPopUp(false);
       setUserPopUp(false);
 
-      navigate("/signin", { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -53,7 +57,6 @@ const Navbar = () => {
     }
   };
 
-  if (!userData) return null;
 
   return (
     <div className="bg-[#f3f3f3] flex justify-center px-4 py-6 select-none">
@@ -69,7 +72,7 @@ const Navbar = () => {
             <RiRobot3Fill size={20} />
           </div>
           <h1 className="font-semibold hidden md:block text-black tracking-tight">
-            TalentAI: <span className="text-gray-500 font-normal">Interview Agent</span>
+            Intelli-Hire AI : <span className="text-gray-500 font-normal">An Interview Agent</span>
           </h1>
         </div>
 
@@ -79,17 +82,20 @@ const Navbar = () => {
           <div className="relative" ref={creditRef}>
             <button
               onClick={() => {
+                if(!userData){
+                  setShowAuth(true)
+                }
                 setCreditPopUp(!creditPopUp);
                 setUserPopUp(false);
               }}
               className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full font-medium text-sm transition cursor-pointer"
             >
               <BsCoin size={18} className="text-amber-500" />
-              <span>{userData?.credits ?? 0}</span>
+              <span>{!userData ? 0 : userData?.credits}</span>
             </button>
 
             <AnimatePresence>
-              {creditPopUp && (
+              {(userData && creditPopUp) && (
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -101,6 +107,9 @@ const Navbar = () => {
                   </p>
                   <button
                     onClick={() => {
+                      if(!userData){
+                  setShowAuth(true)
+                }
                       setCreditPopUp(false);
                       navigate("/pricing");
                     }}
@@ -117,16 +126,19 @@ const Navbar = () => {
           <div className="relative" ref={userRef}>
             <button
               onClick={() => {
+                if(!userData){
+                  setShowAuth(true)
+                }
                 setUserPopUp(!userPopUp);
                 setCreditPopUp(false);
               }}
               className="w-9 h-9 bg-black text-white rounded-full flex items-center justify-center font-semibold border-2 border-transparent hover:border-black transition shadow-sm cursor-pointer"
             >
-              {userData?.name?.slice(0, 1).toUpperCase()}
+              {!userData? <FaRegUser /> : userData?.name?.slice(0, 1).toUpperCase()}
             </button>
 
             <AnimatePresence>
-              {userPopUp && (
+              {(userData && userPopUp) && (
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -140,6 +152,9 @@ const Navbar = () => {
 
                   <button
                     onClick={() => {
+                      if(!userData){
+                  setShowAuth(true)
+                }
                       setUserPopUp(false);
                       navigate("/history");
                     }}
@@ -162,6 +177,9 @@ const Navbar = () => {
           </div>
         </div>
       </motion.div>
+
+      {showAuth && <AuthModal onClose={()=>setShowAuth()}/> }
+
     </div>
   );
 };

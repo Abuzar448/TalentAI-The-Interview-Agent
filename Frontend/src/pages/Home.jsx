@@ -23,9 +23,13 @@ import pdf from "../assets/pdf.png";
 import resume from "../assets/resume.png";
 import tech from "../assets/tech.png";
 import Footer from "../components/Footer";
+import { useState } from "react";
+import AuthModal from "../components/AuthModal";
 
 const Home = () => {
   const { userData } = useSelector((state) => state.user);
+
+  const [showAuth, setShowAuth] = useState(false);
   const navigate = useNavigate();
 
   const process = [
@@ -105,7 +109,7 @@ const Home = () => {
       <div className="flex-1 px-6 py-10">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="bg-gray-100 text-gray-600 text-sm px-4 py-2 rounded-full flex items-center gap-2">
+            <div className="bg-gray-100 text-gray-600 text-2xl font-semibold px-4 py-2 rounded-full flex items-center gap-2">
               <HiSparkles size={16} className="bg-green-50 text-green-600" />
               AI Powered Smart Interview Platform
             </div>
@@ -140,7 +144,14 @@ const Home = () => {
                 whileHover={{ opacity: 0.9, scale: 1.03 }}
                 whileTap={{ opacity: 1, scale: 0.98 }}
                 className="bg-black text-white px-10 py-3 rounded-full shadow-md cursor-pointer"
-                onClick={() => navigate("/interview")}
+                onClick={() => {
+                  if(!userData){
+                    setShowAuth(true)
+                  }
+                  else{
+                  navigate("/interview");
+                  }
+                }}
               >
                 Start Interview
               </motion.button>
@@ -148,7 +159,14 @@ const Home = () => {
                 whileHover={{ opacity: 0.9, scale: 1.03 }}
                 whileTap={{ opacity: 1, scale: 0.98 }}
                 className="text-gray-800 px-10 py-3 rounded-full border-1 border-gray-300 cursor-pointer"
-                onClick={() => navigate("/history")}
+                onClick={() =>{
+                  if(!userData){
+                    setShowAuth(true)
+                  }else{
+                    
+                  navigate("/history")}
+                  }
+                } 
               >
                 Interview History
               </motion.button>
@@ -259,8 +277,11 @@ const Home = () => {
                       </p>
                     </div>
                     <div className="w-1/2 flex justify-end">
-                    <img src={item.image} alt={item.title} className="w-28 h-28 object-contain"/>
-
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-28 h-28 object-contain"
+                      />
                     </div>
                   </div>
                 </motion.div>
@@ -269,7 +290,9 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
+
+      {showAuth && <AuthModal onClose={()=>setShowAuth()}/>}
     </div>
   );
 };

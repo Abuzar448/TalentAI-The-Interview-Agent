@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice.js";
 
-const SignIn = () => {
+const SignIn = ({ isModal = false }) => {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -25,17 +25,15 @@ const SignIn = () => {
           name: response.user.displayName,
           email: response.user.email,
         },
-        {withCredentials:true}
+        { withCredentials: true }
       );
       dispatch(setUserData(result.data));
-
-      console.log("Google SignIn Success",result.data);
     } catch (error) {
       if (error.response) {
-      console.error("Google Auth Backend Error:", error.response.data.message);
-    } else {
-      console.error("Network Error:", error.message);
-    }
+        console.error("Google Auth Backend Error:", error.response.data.message);
+      } else {
+        console.error("Network Error:", error.message);
+      }
     }
   };
 
@@ -48,36 +46,38 @@ const SignIn = () => {
           username,
           password,
         },
-        {withCredentials:true}
+        { withCredentials: true }
       );
       dispatch(setUserData(result.data));
       setUserName("");
       setPassword("");
-      console.log(result.data.message);
-      console.log(result.data);
+      navigate("/");
     } catch (error) {
-      if(error.response){
+      if (error.response) {
         console.error("Backend Error Message:", error.response.data.message);
-      }else{
+      } else {
         console.error("Network Error:", error.message);
       }
-      
-      console.log(error);
     }
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#f3f3f3] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div
+      className={`w-full ${
+        isModal
+          ? "p-0"
+          : "min-h-screen bg-[#f3f3f3] flex items-center justify-center px-4 py-12"
+      }`}
+    >
       <motion.div
-        initial={{ opacity: 0, y: -40 }}
+        initial={{ opacity: 0, y: isModal ? 0 : -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="w-full max-w-4xl bg-white shadow-2xl rounded-3xl border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-2"
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-2"
       >
-        <div className="p-8 sm:p-12 flex flex-col justify-center order-1">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            SignIn
-          </h2>
+        {/* Left Side: SignIn Form */}
+        <div className="p-6 sm:p-10 flex flex-col justify-center order-1">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Sign In</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -121,14 +121,17 @@ const SignIn = () => {
 
           <p className="text-xs text-center text-gray-500 mt-4">
             New to TalentAI Platform?{" "}
-            <a className="text-black font-semibold underline cursor-pointer" onClick={()=>navigate('/signup')}>
+            <a
+              className="text-black font-semibold underline cursor-pointer"
+              onClick={() => navigate("/signup")}
+            >
               Sign Up
             </a>
           </p>
         </div>
 
-        <div className="bg-gray-50 p-8 sm:p-12 flex flex-col justify-center items-center border-t md:border-t-0 md:border-l border-gray-100 order-2">
-          {/* Logo and Name */}
+        {/* Right Side: Branding Info */}
+        <div className="bg-gray-50 p-6 sm:p-10 flex flex-col justify-center items-center border-t md:border-t-0 md:border-l border-gray-100 order-2">
           <div className="flex items-center justify-center gap-3 mb-6 font-semibold">
             <div className="bg-black text-white p-2 rounded-lg">
               <RiRobot3Fill size={20} />
@@ -151,18 +154,12 @@ const SignIn = () => {
             and unlock detailed performance insights.
           </p>
 
-          <div className="w-full flex items-center justify-center gap-2 mb-6 md:hidden">
-            <div className="h-[1px] bg-gray-200 flex-1"></div>
-            <span className="text-xs text-gray-400 uppercase">Or</span>
-            <div className="h-[1px] bg-gray-200 flex-1"></div>
-          </div>
-
           <motion.button
             whileHover={{ opacity: 0.9, scale: 1.02 }}
             whileTap={{ scale: 1 }}
             transition={{ duration: 0.2 }}
             type="button"
-            className="w-[80%] max-w-sm h-12 flex items-center justify-center text-black rounded-xl shadow-lg bg-[white] py-3 gap-3 cursor-pointer text-sm font-medium"
+            className="w-full max-w-sm h-12 flex items-center justify-center text-black rounded-xl shadow-md bg-white border border-gray-200 py-3 gap-3 cursor-pointer text-sm font-medium hover:bg-gray-50 transition-all"
             onClick={handleGoogleAuth}
           >
             <FcGoogle size={20} />
