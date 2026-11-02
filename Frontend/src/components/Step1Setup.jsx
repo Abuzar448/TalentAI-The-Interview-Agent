@@ -29,9 +29,8 @@ const Step1Setup = ({ onStart }) => {
 
   const resumeInput = useRef(null);
 
-  const {userData} = useSelector(state=>state.user);
+  const { userData } = useSelector((state) => state.user);
   const dispatch = useDispatch();
-
 
   const steps = [
     {
@@ -77,37 +76,44 @@ const Step1Setup = ({ onStart }) => {
     }
   };
 
- const [loading, setLoading] = useState(false);
-const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const handleStart = async () => {
-  if (loading) return;
-  setLoading(true);
-  setError("");
+  
+  const handleStart = async () => {
+    if (loading) return;
+    setLoading(true);
+    setError("");
 
-  try {
-    const result = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/interview/generate-quesions`,
-      { role, experience, mode, resumeText, projects, skills },
-      { withCredentials: true },
-    );
+    try {
+      const result = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/interview/generate-quesions`,
+        { role, experience, mode, resumeText, projects, skills },
+        { withCredentials: true },
+      );
 
-    console.log(result.data);
+      console.log(result.data);
 
-    if (userData) {
-      dispatch(setUserData({ ...userData, credits: result.data.creditsLeft }));
+      if (userData) {
+        dispatch(
+          setUserData({ ...userData, credits: result.data.creditsLeft }),
+        );
+      }
+
+      onStart(result.data);
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
+    } finally {
+      setLoading(false);
     }
-
-    onStart(result.data);
-  } catch (err) {
-    console.log(err.response?.data || err.message);
-    setError(err.response?.data?.message || "Something went wrong. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
+    // Main Section
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -115,6 +121,8 @@ const handleStart = async () => {
       className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200 px-4 py-8"
     >
       <div className="w-full max-w-5xl bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] grid md:grid-cols-12 overflow-hidden border border-slate-100">
+        {/* Left Section */}
+
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -154,6 +162,7 @@ const handleStart = async () => {
           </div>
         </motion.div>
 
+        {/* Right Section */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -282,8 +291,8 @@ const handleStart = async () => {
             )}
 
             <motion.button
-            onClick={handleStart}
-              disabled={!role || !experience}
+              onClick={handleStart}
+              disabled={!role || !experience || !mode}
               whileHover={{ scale: !role || !experience ? 1 : 1.015 }}
               whileTap={{ scale: !role || !experience ? 1 : 0.985 }}
               className="w-full disabled:bg-slate-200 disabled:text-gray-400 disabled:cursor-not-allowed bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3.5 rounded-xl text-base font-bold tracking-wide transition-all duration-300 shadow-sm text-center cursor-pointer"
@@ -292,6 +301,7 @@ const handleStart = async () => {
             </motion.button>
           </div>
         </motion.div>
+
       </div>
     </motion.div>
   );

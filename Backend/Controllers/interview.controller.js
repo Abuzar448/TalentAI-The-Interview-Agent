@@ -135,7 +135,7 @@ export const generateQuestions = async (req, res) => {
         `,
       },
       {
-        role: "user", // ✅ lowercase
+        role: "user",
         content: userPrompt,
       },
     ];
@@ -148,8 +148,8 @@ export const generateQuestions = async (req, res) => {
     }
 
     const questionsArray = aiResponse
-      .split("\n") // ✅ fixed typo
-      .map((q) => q.trim()) // ✅ return the string, not a boolean
+      .split("\n")
+      .map((q) => q.trim())
       .filter((q) => q.length > 0)
       .slice(0, 5);
 
